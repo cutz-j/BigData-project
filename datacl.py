@@ -23,18 +23,27 @@ class Clean:
         if i[1]==condition}
         return self.res_dict
         
-    def temp_clean(self, excel, location):
+    def temp_clean(self, excel, location="남산"):
         '''
         temperature excel 전처리 -> date에 맞게 dict추가
         '''
         # time list
         timelist=list(self.res_dict['price'].keys())
         pattern=r"[\d]{4}-[\d]{2}-[\d]{2}"
+        res=[]
+        location_list=[]
         for i in range(len(timelist)):
-            timelist[i]=re.findall(pattern, str(timelist[i]))[0]
-        print(timelist)
+            res.append(re.findall(pattern, str(timelist[i]))[0])
         
         file=self.load_excel(excel)
+        for i in file.values: 
+            if location in i[0]:
+                location_list=i
+            else: print ("잘못된 지역명입니다.")
+        for j in location_list:
+                
+                
+        
         
         
         
