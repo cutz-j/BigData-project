@@ -19,38 +19,43 @@ class Clean:
         excel 전처리 -> dataframe -> dict // date + 물가 //
         '''
         alist=self.load_excel(excel).values
-        self.res_dict['price']={i[0]:i[3] for i in alist if i[1]==condition}
+        if 'price' not in self.res_dict:
+            self.res_dict['price']={i[0]:i[3] for i in alist if i[1]==condition}
+        else:
+            for i in alist:
+                self.res_dict['price'][i[0]]=i[3]
         return self.res_dict
         
-    def temp(self, excel, location="남산"):
+    def weather(self, excel, category, location="남산"):
         '''
         temperature excel 전처리 파일(리스트)을 -> date에 맞게 dict추가
         '''
         # time list
-        temp_list=self.temp_clean(excel, location)
+        temp_list=self.weather_clean(excel, location)
         for i in temp_list:
-            if 'temp' not in self.res_dict:
-                self.res_dict['temp']={i[0]: i[1]}
+            if category not in self.res_dict:
+                self.res_dict[category]={i[0]: i[1]}
             else:
-                self.res_dict['temp'][i[0]]=i[1]
+                self.res_dict[category][i[0]]=i[1]
         return self.res_dict
     
     def main(self):
         '''
         편의성을 위한 All-in-one 함수
         '''
-        self.price_clean("price2018.xlsx", "돼지고기(생삼겹살)")
-        self.temp("D:/Github/BigData-project/temp/temp2018-01.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-02.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-03.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-04.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-05.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-06.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-07.xlsx", "중구")
-        self.temp("D:/Github/BigData-project/temp/temp2018-08.xlsx", "중구")
+        for cat in ['price','temp','rain','hum','wsd']:
+            for year in range(2015,2019):
+                if cat == 'price':
+                    self.price_clean("D:/Github/BigData-project/data-set/"+cat+str(year)+".xlsx", "돼지고기(생삼겹살)" )
+                else: 
+                    for month in range(1,13):
+                        if year == 2018:
+                            if month > 8:
+                                break
+                        self.weather("D:/Github/BigData-project/data-set/"+cat+str(year)+str(month)+".xlsx",cat, "양천")
         return self.res_dict
     
-    def temp_clean(self, excel, location="남산"):
+    def weather_clean(self, excel, location="남산"):
         '''
         temp 전처리 하여 [날짜: 온도] 처리
         '''
@@ -98,7 +103,6 @@ class Clean:
     '''
     
     
-    
     def get_df(self, dictionary):
         '''
         합쳐진 Dict를 DateFrame으로 만들기
@@ -112,12 +116,4 @@ class Clean:
 
 if __name__=="__main__":
     clean=Clean()
-    clean.price_clean("price2018.xlsx", "돼지고기(생삼겹살)")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-01.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-02.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-03.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-04.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-05.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-06.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-07.xlsx", "중구")
-    clean.temp("D:/Github/BigData-project/temp/temp2018-08.xlsx", "중구")
+    clean.main()
