@@ -20,10 +20,11 @@ class Clean:
         '''
         alist=self.load_excel(excel).values
         if 'price' not in self.res_dict:
-            self.res_dict['price']={i[0]:i[3] for i in alist if i[1]==condition}
+            self.res_dict['price']={i[0]:i[3] for i in alist if condition in i[1]}
         else:
             for i in alist:
-                self.res_dict['price'][i[0]]=i[3]
+                if condition in i[1]:
+                    self.res_dict['price'][i[0]]=i[3]
         return self.res_dict
         
     def weather(self, excel, category, location="남산"):
@@ -46,13 +47,13 @@ class Clean:
         for cat in ['price','temp','rain','hum','wsd']:
             for year in range(2015,2019):
                 if cat == 'price':
-                    self.price_clean("D:/Github/BigData-project/data-set/"+cat+str(year)+".xlsx", "돼지고기(생삼겹살)" )
+                    self.price_clean("D:/Github/BigData-project/data-set/"+cat+str(year)+".xlsx", "돼지고기(삼겹살)" )
                 else: 
                     for month in range(1,13):
                         if year == 2018:
                             if month > 8:
                                 break
-                        self.weather("D:/Github/BigData-project/data-set/"+cat+str(year)+str(month)+".xlsx",cat, "양천")
+                        self.weather("D:/Github/BigData-project/data-set/"+cat+str(year)+str(month)+".xlsx",cat, "은평")
         return self.res_dict
     
     def weather_clean(self, excel, location="남산"):
@@ -88,20 +89,13 @@ class Clean:
                     res.append((timelist[date_list.index(date_res)], location_list[j]))
         return res
     
-    
     '''
+    
     함수 추가 공간
     
-    
-    2018년 이전 물가 데이터
-    강수량 // 습도 // 변수 등
-    
-    
-
-    
+    다른 변수//잠복변수 등
     
     '''
-    
     
     def get_df(self, dictionary):
         '''
@@ -117,3 +111,5 @@ class Clean:
 if __name__=="__main__":
     clean=Clean()
     clean.main()
+    res=clean.res_dict
+    df=clean.get_df(res)
