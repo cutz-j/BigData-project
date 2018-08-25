@@ -5,6 +5,7 @@ import re
 # 데이터 전처리 // from datacl import clean
 class Clean:
     def __init__(self):
+        # 모든 결과물은 self.res_dict에 저장
         self.res_dict={}
         
     def load_excel(self, excel):
@@ -104,6 +105,9 @@ class Clean:
         return DataFrame(dictionary)
     
     def save_excel(self, dictionary, savefile_name="defaultdf.xlsx"):
+        '''
+        결과물 엑셀로 저장 함수
+        '''
         self.get_df(dictionary).to_excel(savefile_name)
         return
 
