@@ -28,67 +28,63 @@ class Clean:
                     self.res_dict['price'][i[0]]=i[3]
         return self.res_dict
         
-    def weather(self, excel, category, location="남산"):
+    def weather(self, excel):
         '''
         temperature excel 전처리 파일(리스트)을 -> date에 맞게 dict추가
         '''
         # time list
-        temp_list=self.weather_clean(excel, location)
+        temp_list, rain_list, wind_list=self.weather_clean(excel)
         for i in temp_list:
-            if category not in self.res_dict:
-                self.res_dict[category]={i[0]: i[1]}
+            if 'temp' not in self.res_dict:
+                self.res_dict['temp']={i[0]: i[1]}
             else:
-                self.res_dict[category][i[0]]=i[1]
+                self.res_dict['temp'][i[0]]=i[1]
+        for i in rain_list:
+            if 'rain' not in self.res_dict:
+                self.res_dict['rain']={i[0]: i[1]}
+            else:
+                self.res_dict['rain'][i[0]]=i[1]
+        for i in wind_list:
+            if 'wind' not in self.res_dict:
+                self.res_dict['wind']={i[0]: i[1]}
+            else:
+                self.res_dict['wind'][i[0]]=i[1]
         return self.res_dict
     
     def main(self):
         '''
         편의성을 위한 All-in-one 함수
         '''
-        for cat in ['price','temp','rain','hum','wsd']:
-            for year in range(2015,2019):
-                if cat == 'price':
-                    self.price_clean("D:/Github/BigData-project/data-set/"+cat+str(year)+".xlsx", "돼지고기(삼겹살)" )
-                else: 
-                    for month in range(1,13):
-                        if year == 2018:
-                            if month > 8:
-                                break
-                        self.weather("D:/Github/BigData-project/data-set/"+cat+str(year)+str(month)+".xlsx",cat, "은평")
+        
+        self.price_clean("price2017.xlsx", "돼지고기(삼겹살)" )
+        self.weather("weather2017.xlsx")
         return self.res_dict
     
-    def weather_clean(self, excel, location="남산"):
+    def weather_clean(self, excel):
         '''
         temp 전처리 하여 [날짜: 온도] 처리
-        '''
-        # 정규식으로 물가Dict의 날짜 추출
-        timelist=list(self.res_dict['price'].keys())
-        pattern=r"[\d]{4}-[\d]{2}-[\d]{2}"
-        date_list=[]
-        location_list=[]
-        res=[]
-        for i in range(len(timelist)):
-            date_list.append(re.findall(pattern, str(timelist[i]))[0])
+        '''      
         # temp 엑셀파일에서 지역과 기온 추출
         file=self.load_excel(excel)
-        for i in file.values[1:]:
-            if "[서] " +location in i[0]:
-                location_list=i
-        if len(location_list)==0:
-            print("잘못된 지역명입니다.")
-        # temp를 (날짜, 기온)으로 리턴 (결측치 제거)
-        date=pd.Categorical(self.load_excel(excel))[0][-8:-1]
-        for j in range(len(location_list)):
-            if j == 0:
-                continue
-            elif j < 10:
-                date_res=date+"-0"+str(j)
-            else:
-                date_res=date+"-"+str(j)
-            if date_res in date_list:
-                if not location_list[j]=='-':
-                    res.append((timelist[date_list.index(date_res)], location_list[j]))
-        return res
+        tempList, rainList, windList=[], [], []
+        tempRes, rainRes, windRes=[], [], []
+        timelist=list(self.res_dict['price'].keys())
+        for time in timelist:
+            for j in range(len(file)):
+                if time == file.ix[j,1]:
+                    tempList.append(file.ix[j,2])
+                    rainList.append(file.ix[j,3])
+                    windList.append(file.ix[j,4])
+                    print(file.ix[j,1])
+            print(tempList)
+            tempRes.append((time, self.mean_list(tempList)))
+            rainRes.append((time, self.mean_list(rainList)))
+            windRes.append((time, self.mean_list(windList)))
+            tempList, rainList, windList=[], [], []
+            print (tempRes)
+        print("for complete")
+        return tempRes, rainRes, windRes
+    
     
     '''
     
@@ -97,6 +93,27 @@ class Clean:
     다른 변수//잠복변수 등
     
     '''
+    def mean_list(self, m_list):
+        '''
+        min/max 제거 후 평균 계산 함수
+        '''
+        m_list.remove(min(m_list))
+        m_list.remove(max(m_list))
+        mean=sum(m_list)/len(m_list)
+        return mean
+    
+    def time_list(self):
+        '''
+        정규식을 이용해 timestamp를 time으로 간편화
+        '''
+        timelist=list(self.res_dict['price'].keys())
+        pattern=r"[\d]{4}-[\d]{2}-[\d]{2}"
+        date_list=[]
+        location_list=[]
+        res=[]
+        for i in range(len(timelist)):
+            date_list.append(re.findall(pattern, str(timelist[i]))[0])
+        return date_list
     
     def get_df(self, dictionary):
         '''
@@ -115,5 +132,4 @@ class Clean:
 if __name__=="__main__":
     clean=Clean()
     clean.main()
-    res=clean.res_dict
-    df=clean.get_df(res)
+    test=clean.load_excel("weather2017.xlsx")
