@@ -71,6 +71,7 @@ class Clean:
         timelist=list(self.res_dict['price'].keys())
         for time in timelist:
             for j in range(len(file)):
+                # 결측치 처리 고민 // NaN->sum불가 // 0은 데이터영향 // 공란?
                 if time == file.ix[j,1]:
                     tempList.append(file.ix[j,2])
                     rainList.append(file.ix[j,3])
