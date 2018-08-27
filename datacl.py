@@ -51,6 +51,9 @@ class Clean:
                 self.res_dict['wind'][i[0]]=i[1]
         return self.res_dict
     
+    def oil(self, excel):
+        return
+    
     def main(self):
         '''
         편의성을 위한 All-in-one 함수
@@ -71,12 +74,11 @@ class Clean:
         timelist=list(self.res_dict['price'].keys())
         for time in timelist:
             for j in range(len(file)):
-                # 결측치 처리 고민 // NaN->sum불가 // 0은 데이터영향 // 공란?
                 if time == file.ix[j,1]:
-                    tempList.append(file.ix[j,2])
+                    if not pd.isna(file.ix[j,2]): tempList.append(file.ix[j,2])
                     rainList.append(file.ix[j,3])
-                    windList.append(file.ix[j,4])
-                    print(file.ix[j,1])
+                    if not pd.isna(file.ix[j,4]): windList.append(file.ix[j,4])
+#                    print(file.ix[j,1])
             print(tempList)
             tempRes.append((time, self.mean_list(tempList)))
             rainRes.append((time, self.mean_list(rainList)))
@@ -86,14 +88,13 @@ class Clean:
         print("for complete")
         return tempRes, rainRes, windRes
     
-    
-    '''
-    
-    함수 추가 공간
-    
-    다른 변수//잠복변수 등
-    
-    '''
+    def oil_clean(self, excel):
+        file=self.load_excel(excel)
+        time_list=self.time_list()
+        gas_list, diesel_list=[], []
+#        for i in range(len(file)):
+#            if time_list[i] in file.ix[i, ]
+  
     def mean_list(self, m_list):
         '''
         min/max 제거 후 평균 계산 함수
@@ -110,8 +111,6 @@ class Clean:
         timelist=list(self.res_dict['price'].keys())
         pattern=r"[\d]{4}-[\d]{2}-[\d]{2}"
         date_list=[]
-        location_list=[]
-        res=[]
         for i in range(len(timelist)):
             date_list.append(re.findall(pattern, str(timelist[i]))[0])
         return date_list
@@ -132,5 +131,6 @@ class Clean:
 
 if __name__=="__main__":
     clean=Clean()
-    clean.main()
-    test=clean.load_excel("weather2017.xlsx")
+#    clean.main()
+    test=clean.load_excel("oil2017.xlsx")
+    test1=clean.time_list()
