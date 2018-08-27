@@ -52,6 +52,17 @@ class Clean:
         return self.res_dict
     
     def oil(self, excel):
+        gas_list, diesel_list=self.oil_clean(excel)
+        for i in gas_list:
+            if 'gas' not in self.res_dict:
+                self.res_dict['gas']={i[0]: i[1]}
+            else:
+                self.res_dict['gas'][i[0]]=i[1]
+        for i in diesel_list:
+            if 'diesel' not in self.res_dict:
+                self.res_dict['diesel']={i[0]: i[1]}
+            else:
+                self.res_dict['diesel'][i[0]]=i[1]
         return
     
     def main(self):
@@ -61,6 +72,7 @@ class Clean:
         
         self.price_clean("price2017.xlsx", "돼지고기(삼겹살)" )
         self.weather("weather2017.xlsx")
+        self.oil("oil2017.xlsx")
         return self.res_dict
     
     def weather_clean(self, excel):
@@ -91,9 +103,19 @@ class Clean:
     def oil_clean(self, excel):
         file=self.load_excel(excel)
         time_list=self.time_list()
+        time=list(self.res_dict['price'].keys())
         gas_list, diesel_list=[], []
-#        for i in range(len(file)):
-#            if time_list[i] in file.ix[i, ]
+        for i in range(9, len(file.ix[:,0])):
+            file.ix[i,0]=file.ix[i,0].replace("년", "-")
+            file.ix[i,0]=file.ix[i,0].replace("월", "-")
+            file.ix[i,0]=file.ix[i,0].replace("일", "")
+        j=0
+        for i in range(9, len(file.ix[:,0])):
+            if file.ix[i,0] in time_list:
+                gas_list.append((time[j], file.ix[i, 1]))
+                diesel_list.append((time[j], file.ix[i, 2]))
+                j+=1
+        return gas_list, diesel_list
   
     def mean_list(self, m_list):
         '''
@@ -131,6 +153,4 @@ class Clean:
 
 if __name__=="__main__":
     clean=Clean()
-#    clean.main()
-    test=clean.load_excel("oil2017.xlsx")
-    test1=clean.time_list()
+    clean.main()
