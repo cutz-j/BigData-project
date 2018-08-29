@@ -153,4 +153,4 @@ class Clean:
 
 if __name__=="__main__":
     clean=Clean()
-    clean.main()
+#    clean.main()
