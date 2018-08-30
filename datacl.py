@@ -15,16 +15,23 @@ class Clean:
         excel=pd.read_excel(excel)
         return excel
     
-    def price_clean(self, excel, condition):
+    def load_csv(self, csv):
         '''
-        excel 전처리 -> dataframe -> dict // date + 물가 //
+        csv 파일 불러오기
+        '''
+        csv=pd.read_csv(csv)
+        return csv
+    
+    def price_clean(self, excel, product):
+        '''
+        excel 전처리 -> dataframe -> dict // date + 물가
         '''
         alist=self.load_excel(excel).values
         if 'price' not in self.res_dict:
-            self.res_dict['price']={i[0]:i[3] for i in alist if condition in i[1]}
+            self.res_dict['price']={i[0]:i[3] for i in alist if product in i[1]}
         else:
             for i in alist:
-                if condition in i[1]:
+                if product in i[1]:
                     self.res_dict['price'][i[0]]=i[3]
         return self.res_dict
         
@@ -52,6 +59,9 @@ class Clean:
         return self.res_dict
     
     def oil(self, excel):
+        '''
+        oil_clean의 3 리스트를 res_dict에 저장
+        '''
         gas_list, diesel_list=self.oil_clean(excel)
         for i in gas_list:
             if 'gas' not in self.res_dict:
@@ -65,14 +75,32 @@ class Clean:
                 self.res_dict['diesel'][i[0]]=i[1]
         return
     
+    def money(self, excel, category):
+        '''
+        원달러 환율과 주식을 res_dict에 추가
+        '''
+        m_list=self.won_clean(excel)
+        time_list=self.time_list()
+        real_time=list(self.res_dict['price'].keys())
+        for i in range(len(m_list)):
+            for j in range(len(time_list)):
+                if time_list[j] in m_list[i][0]:
+                    if category not in self.res_dict:
+                        self.res_dict[category]={real_time[j]:m_list[i][1]}
+                    else:
+                        self.res_dict[category][real_time[j]]=m_list[i][1]
+        return
+    
     def main(self):
         '''
         편의성을 위한 All-in-one 함수
         '''
         
-        self.price_clean("price2017.xlsx", "돼지고기(삼겹살)" )
+        self.price_clean("price2017.xlsx", "오징어" )
         self.weather("weather2017.xlsx")
         self.oil("oil2017.xlsx")
+        self.money("won2017.xlsx", "wondollar")
+        self.money("stock2017.xlsx", "stock")
         return self.res_dict
     
     def weather_clean(self, excel):
@@ -91,7 +119,7 @@ class Clean:
                     rainList.append(file.ix[j,3])
                     if not pd.isna(file.ix[j,4]): windList.append(file.ix[j,4])
 #                    print(file.ix[j,1])
-            print(tempList)
+#            print(tempList)
             tempRes.append((time, self.mean_list(tempList)))
             rainRes.append((time, self.mean_list(rainList)))
             windRes.append((time, self.mean_list(windList)))
@@ -116,6 +144,23 @@ class Clean:
                 diesel_list.append((time[j], file.ix[i, 2]))
                 j+=1
         return gas_list, diesel_list
+    
+    def won_clean(self,excel):
+        """
+        won 전처리
+        """
+        won_ex = self.load_excel(excel)
+        alist = won_ex.values
+        dap = []
+        p = re.compile("[\d]{4}-[\d]{2}-[\d]{2}")
+        for i in range(len(alist)):
+            if "/" in str(alist[i][0]):
+                alist[i][0]=str(alist[i][0]).replace("/", "-")
+            if p.match(str(alist[i][0]))!=None:
+                c=p.match(str(alist[i][0]))
+                d =c.string.replace("/","-")
+                dap.append((d,alist[i][1]))
+        return dap
   
     def mean_list(self, m_list):
         '''
@@ -153,4 +198,4 @@ class Clean:
 
 if __name__=="__main__":
     clean=Clean()
-#    clean.main()
+    clean.main()
