@@ -96,11 +96,11 @@ class Clean:
         편의성을 위한 All-in-one 함수
         '''
         
-        self.price_clean("price2017.xlsx", "오징어" )
-        self.weather("weather2017.xlsx")
-        self.oil("oil2017.xlsx")
-        self.money("won2017.xlsx", "wondollar")
-        self.money("stock2017.xlsx", "stock")
+        self.price_clean("data-set/2018_emart_sq_price.xlsx", "오징어" )
+#        self.weather("weather2017.xlsx")
+#        self.oil("oil2017.xlsx")
+#        self.money("won2017.xlsx", "wondollar")
+        self.money("data-set/stock2018.xlsx", "stock")
         return self.res_dict
     
     def weather_clean(self, excel):
@@ -197,5 +197,7 @@ class Clean:
 
 
 if __name__=="__main__":
-    clean=Clean()
-    clean.main()
+#    clean=Clean()
+#    clean.main()
+    clean1=Clean()
+    clean1.main()
