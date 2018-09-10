@@ -175,7 +175,7 @@ class Clean:
         '''
         정규식을 이용해 timestamp를 time으로 간편화
         '''
-        timelist=list(self.res_dict['price'].keys())
+        timelist=list(self.get_df(self.res_dict).index)
         pattern=r"[\d]{4}-[\d]{2}-[\d]{2}"
         date_list=[]
         for i in range(len(timelist)):
