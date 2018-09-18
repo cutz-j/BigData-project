@@ -128,6 +128,11 @@ class Clean:
         print("for complete")
         return tempRes, rainRes, windRes
     
+    '''
+    weather clean
+    oil_clean
+    '''
+    
     def oil_clean(self, excel):
         file=self.load_excel(excel)
         time_list=self.time_list()
