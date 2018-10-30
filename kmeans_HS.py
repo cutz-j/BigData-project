@@ -1,7 +1,6 @@
 '''
 K-means는 접근성 분석을 위해서 사용됩니다
 '''
-
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report
@@ -24,18 +23,6 @@ y = all_data['y_price'] # shape (28046, )
 rs = pp.RobustScaler()
 y_scale = rs.fit_transform(np.array(y).reshape(-1, 1))
 
-## 실거래가 아파트 데이터 전처리 ## --> shape (281684, 7)
-all_data_apt = pd.read_csv("d:/project_data/total_Apt.csv", sep=",", encoding='euc-kr')
-all_data_apt['price_big'] = all_data_apt['Price'] / all_data_apt['Howbig']
-X_apt = all_data_apt.iloc[:, -3:-1] # shape (281684, 2)
-y_apt_scale = rs.fit_transform(np.array(all_data_apt['price_big']).reshape(-1, 1)) # shape(281684, 1)
-
-## 실거래가 연립 데이터 전처리 ## --> shape ()
-all_data_town = pd.read_csv("d:/project_Data/total_Townhouse01.csv", sep=",", encoding="cp949")
-all_data_town['price_big'] = all_data_town['Price'] / all_data_town['Howbig']
-X_town = all_data_town.iloc[:, -3:-1] # shape (281684, 2)
-y_town_scale = rs.fit_transform(np.array(all_data_town['price_big']).reshape(-1, 1)) # shape(281684, 1)
-
 ## 어린이집 데이터 전처리 ##
 all_center = json.load(open("d:/project_data/allmap.json", encoding='utf-8'))
 c_header = all_center['DESCRIPTION'] # JSON 분리
@@ -50,11 +37,11 @@ x_test = c_alldf[c_alldf['kinds'] == "국공립"] # 국공립만 선택
 ## train_test split ## --> train (X:좌표, y: 공시지가) / test (X:어린이집) ##
 
 ## k-means ##
-k_list = [3,5,10,15,25,50]
+k = None # all 동네
 
 # n_cluster = 25, max_iter=1000  // 평균 회귀 --> regressor #
-k_means = KMeans(n_clusters=25, max_iter=1000)
-k_means.fit(X)
+k_means = KMeans(n_clusters=k, max_iter=500)
+k_means.fit(x_test)
 
 ## predict --> 평균가 적용 ##
 pred = k_means.predict(x_test.iloc[:, 1:3])

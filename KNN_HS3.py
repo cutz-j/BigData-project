@@ -1,4 +1,4 @@
-### 공시지가 K-NN ###
+### 공시지가/아파트실거래가/연립주택실거래가 K-NN ###
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report
