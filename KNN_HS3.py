@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import json
 import sklearn.preprocessing as pp
 
+pd.DataFrame.sort_values()
+
 ## 데이터 전처리 ##  --> 이상치 제거, 표준화 필요 ##
 all_data = pd.read_csv("d:/project_data/house_clean02.csv", dtype=np.str, encoding='euc-kr') # encodig: 'euc-kr'
 
