@@ -12,6 +12,26 @@ tf.set_random_seed(777)
 ## 데이터 전처리 ##
 # shape(54, 423)
 all_data = pd.read_csv("d:/project_data/peopleDataAll01.csv", sep=",", encoding='cp949')
+all_center = pd.read_csv("d:/project_data/all_data3.csv", sep=",", encoding="euc-kr")
+
+# 201809 인구데이터 뽑아오기 #
+recent_data = all_data.iloc[-1, :]
+index_list = []
+for i in recent_data.index:
+    index_list.append(i.split()[1])
+
+recent_data.index = index_list
+all_center['old_add'][all_center['old_add']=='공릉1동'] = '공릉1.3동'
+all_center['old_add'][all_center['old_add']=='위례동'] = '장지동'
+
+
+## center data에 2018년 9월 인구 데이터 붙이기 ##
+all_center['201809'] = 0
+for i in range(len(all_center['201809'])):
+    try: all_center['201809'].iloc[i] = recent_data[all_center['old_add'].iloc[i]]
+    except: print("error: ", all_center['old_add'].iloc[i])
+
+#all_center.to_csv("d:/project_data/all_center9.csv", encoding="euc-kr")
 
 # X, Y 데이터 전처리 #
 x_data = np.array(all_data.index, dtype=np.float32).reshape(105, 1) + 1.001 # shape(105, 1)
@@ -23,12 +43,13 @@ ss_x = StandardScaler()
 Y_scale = ss.fit_transform(Y_data) # fit 데이터를 이용해 복원 --> ss.inverse_transform(Y_scale)
 x_scale = ss_x.fit_transform(x_data)
 # train_test split 8:2 #
-x_train, x_test, y_train, y_test = train_test_split(x_scale, Y_scale, train_size=0.8, random_state=77)
+train_size = int(len(x_data) * 0.8)
+x_train, x_test, y_train, y_test = x_scale[:84], x_scale[84:], Y_scale[:84, :], Y_scale[84:, :]
 
 ## hyper paramter ##
-learning_rate = 0.03
-l2norm = 0.0000001
-epochs = 5000
+learning_rate = 0.003
+l2norm = 0.0001
+epochs = 10000
 batch_size = 42
 is_training = True  # 배치 정규화를 위한 boollean
 keep_prob = 0.8
@@ -41,29 +62,33 @@ Y = tf.placeholder(dtype=tf.float32, shape=[None, 423])
 ## batch-normalization ##  --> wx+B의 계산마다 정규화가 이루어져, 학습 개선
 # 다중신경망 구성 #
 # drop-out # 학습 노드를 임의로 제외하여, 오버피팅 방지 --> 앙상블 학습 구현
-W1 = tf.Variable(tf.truncated_normal([1, 423], stddev=0.1), name='weight1')
-b1 = tf.Variable(tf.truncated_normal([423], stddev=0.1), name='bias1')
+init = tf.keras.initializers.he_normal(seed=77)
+W1 = tf.Variable(init([1, 423]), name='weight1')
+b1 = tf.Variable(init([423]), name='bias1')
 layer1 = tf.matmul(X, W1) + b1
-L1 = tf.contrib.layers.batch_norm(layer1, center=True, scale=True,
+l1 = tf.contrib.layers.batch_norm(layer1, center=True, scale=True,
                                   is_training=is_training)
+L1 = tf.nn.relu(l1, name='relu1')
 L1 = tf.nn.dropout(L1, keep_prob=keep_prob)
 
-W2 = tf.Variable(tf.truncated_normal([423, 423], stddev=0.1), name='weight2')
-b2 = tf.Variable(tf.truncated_normal([423], stddev=0.1), name='bias2')
+W2 = tf.Variable(init([423, 423]), name='weight2')
+b2 = tf.Variable(init([423]), name='bias2')
 layer2 = tf.matmul(L1, W2) + b2
-L2 = tf.contrib.layers.batch_norm(layer2, center=True, scale=True,
+l2 = tf.contrib.layers.batch_norm(layer2, center=True, scale=True,
                                   is_training=is_training)
+L2 = tf.nn.relu(l2, name='relu2')
 L2 = tf.nn.dropout(L2, keep_prob=keep_prob)
 
-W3 = tf.Variable(tf.truncated_normal([423, 423], stddev=0.1), name='weight3')
-b3 = tf.Variable(tf.truncated_normal([423], stddev=0.1), name='bias3')
+W3 = tf.Variable(init([423, 423]), name='weight3')
+b3 = tf.Variable(init([423]), name='bias3')
 layer3 = tf.matmul(L2, W3) + b3
-L3 = tf.contrib.layers.batch_norm(L2,  center=True, scale=True,
+l3 = tf.contrib.layers.batch_norm(layer3,  center=True, scale=True,
                                   is_training=is_training)
+L3 = tf.nn.relu(l3, name='relu3')
 L3 = tf.nn.dropout(L3, keep_prob=keep_prob)
 
-W4 = tf.Variable(tf.truncated_normal([423, 423], stddev=0.1), name='weight4')
-b4 = tf.Variable(tf.truncated_normal([423], stddev=0.1), name='bias4')
+W4 = tf.Variable(init([423, 423]), name='weight4')
+b4 = tf.Variable(init([423]), name='bias4')
 hypothesis = tf.matmul(L3, W4) + b4
 
 ## l2 정규화 = 리지회귀(W값 패널티를 cost에서 더해준다.)
@@ -71,7 +96,7 @@ var = tf.trainable_variables()
 l2reg = tf.add_n([tf.nn.l2_loss(v) for v in var if 'bias' not in v.name]) * l2norm
 
 # cost&opt #
-cost = tf.reduce_sum(tf.square(hypothesis - Y))
+cost = tf.reduce_mean(tf.square(hypothesis - Y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # batch_norm
 with tf.control_dependencies(update_ops):

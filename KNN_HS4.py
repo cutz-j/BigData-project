@@ -37,18 +37,13 @@ X_town = all_data_town.iloc[:, -3:-1] # shape (281684, 2)
 y_town_scale = rs.fit_transform(np.array(all_data_town['price_big']).reshape(-1, 1)) # shape(281684, 1)
 
 ## 어린이집 데이터 전처리 ##
-all_center = json.load(open("d:/project_data/allmap.json", encoding='utf-8'))
-c_header = all_center['DESCRIPTION'] # JSON 분리
-c_data = all_center['DATA']
-c_alldf = pd.DataFrame(c_data)
+all_center = pd.read_csv("d:/project_data/all_center9.csv", encoding="euc-kr")
 
 # 특정 열만 선택 #
-c_alldf = c_alldf[['cot_conts_name', 'cot_coord_x', 'cot_coord_y', 'cot_value_01', 'cot_gu_name','cot_addr_full_new']]
-c_alldf.columns = ['name', 'x', 'y', 'kinds', 'location','address']
-x_test = c_alldf[c_alldf['kinds'] == "국공립"] # 국공립만 선택
+x_test = all_center[all_center['Type'] == "국공립"] # 국공립만 선택
 
 ## KNN regressor##
-k_list = [i for i in range(15,26, 2)]
+k_list = [25]
 
 # minkowski --> p = 2  // 평균 회귀 --> regressor #
 knn_fit = neg.KNeighborsRegressor(n_neighbors=k_list[0], p=2, metric='minkowski')
@@ -56,13 +51,13 @@ knn_fit.fit(X, y_scale)
 knn_fit.fit(X_apt, y_apt_scale)
 
 ## predict --> 평균가 적용 ##
-pred = knn_fit.predict(x_test.iloc[:, 1:3])
-x_test['소득추정'] = pred
-for i in range(len(x_test['location'])):
-    x_test['location'].values[i] = x_test['location'].values[i][:-1] # '구' 빼기
+#pred = knn_fit.predict(x_test.iloc[:, 1:3])
+#x_test['income'] = pred
+for i in range(len(x_test['Gue'])):
+    x_test['Gue'].values[i] = x_test['Gue'].values[i][:-1] # '구' 빼기
     
 ## groupby를 통해 구별 평균 소득 추정 ##
-mean = x_test.groupby(['location'], as_index=False).mean()
+mean = x_test.groupby(['Gue'], as_index=False).mean()
 
 # 한글 폰트 깨지는 문제 #
 from matplotlib import font_manager, rc
@@ -78,11 +73,11 @@ for i in range(len(k_list)):
     knn_fit = neg.KNeighborsRegressor(n_neighbors=k_list[i], p=2, metric='minkowski')
     knn_fit.fit(X, y_scale)
     knn_fit.fit(X_apt, y_apt_scale)
-#     knn_fit.fit(X_town, y_town_scale)
-    x_test["predK%i" %k_list[i]] = knn_fit.predict(x_test.iloc[:, 1:3])
-    mean = x_test.groupby(['location'], as_index=False).mean()
+    knn_fit.fit(X_town, y_town_scale)
+    x_test["predK%i" %k_list[i]] = knn_fit.predict(x_test.iloc[:, 14:16])
+    mean = x_test.groupby(['Gue'], as_index=False).mean()
     price_pred = pd.DataFrame(mean.iloc[:, -1])
-    price_pred.index = mean['location']
+    price_pred.index = mean['Gue']
     sortList.append(price_pred)
     plt.plot(price_pred)
 plt.legend(k_list)
@@ -91,4 +86,5 @@ plt.rcParams["figure.figsize"] = (16,4)
 plt.show()
 
 
+#x_test.to_csv("d:/project_data/KNN_data.csv", encoding='euc-kr', index=False)
 

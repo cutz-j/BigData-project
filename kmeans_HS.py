@@ -10,10 +10,8 @@ from scipy.spatial.distance import cdist, pdist
 
 
 ## 어린이집 데이터 전처리 ##
-all_center = pd.read_csv("d:/project_data/all_data.csv", sep=",", encoding="euc-kr")
-c_df = all_center[['cot_conts_name', 'cot_coord_x', 'cot_coord_y', 'cot_value_01', 'cot_gu_name', 'cot_addr_full_old']]
-c_df.columns = ['name', 'x', 'y', 'kinds', 'location', 'address']
-x_test = c_df[c_df['kinds'] == "국공립"] # 국공립만 선택
+all_center = pd.read_csv("d:/project_data/all_center9.csv", sep=",", encoding="euc-kr")
+x_test = all_center[all_center['Type'] == "국공립"] # 국공립만 선택
 
 ## train_test split ## --> train: x_test / predict: x_test (cluster)
 
@@ -22,11 +20,11 @@ k = 424 # 서울시 행정 동 개수
 
 # n_cluster = 424, max_iter=3000 #
 k_means = KMeans(n_clusters=k, max_iter=3000)
-k_means.fit(x_test.iloc[:, 1:3])
-k_cluster = k_means.predict(x_test.iloc[:, 1:3])
+k_means.fit(x_test.iloc[:, 14:16])
+k_cluster = k_means.predict(x_test.iloc[:, 14:16])
 x_test['k_cluster'] = k_cluster
 
-ss = silhouette_score(x_test.iloc[:, 1:3], k_means.labels_, metric='euclidean')
+ss = silhouette_score(x_test.iloc[:, 14:16], k_means.labels_, metric='euclidean')
 print(ss) # 0.4312
 
 
@@ -38,7 +36,10 @@ rc('font', family=font_name)
 # 시각화 그래프 # --> 구별 평균 추정값 (TEST)
 fig = plt.figure()
 for i in range(k):
-    scat = plt.scatter(x_test[x_test['k_cluster']==i].iloc[:, 1], x_test[x_test['k_cluster']==i].iloc[:, 2])
+    scat = plt.scatter(x_test[x_test['k_cluster']==i].iloc[:, 14], x_test[x_test['k_cluster']==i].iloc[:, 15],
+                       s=10)
+    
+
 fig.show()
 
 
