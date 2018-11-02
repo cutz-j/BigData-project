@@ -11,25 +11,26 @@ tf.set_random_seed(777)
 
 ## 데이터 전처리 ##
 # shape(54, 423)
+
 all_data = pd.read_csv("d:/project_data/peopleDataAll01.csv", sep=",", encoding='cp949')
-all_center = pd.read_csv("d:/project_data/all_data3.csv", sep=",", encoding="euc-kr")
-
-# 201809 인구데이터 뽑아오기 #
-recent_data = all_data.iloc[-1, :]
-index_list = []
-for i in recent_data.index:
-    index_list.append(i.split()[1])
-
-recent_data.index = index_list
-all_center['old_add'][all_center['old_add']=='공릉1동'] = '공릉1.3동'
-all_center['old_add'][all_center['old_add']=='위례동'] = '장지동'
-
-
-## center data에 2018년 9월 인구 데이터 붙이기 ##
-all_center['201809'] = 0
-for i in range(len(all_center['201809'])):
-    try: all_center['201809'].iloc[i] = recent_data[all_center['old_add'].iloc[i]]
-    except: print("error: ", all_center['old_add'].iloc[i])
+#all_center = pd.read_csv("d:/project_data/all_data3.csv", sep=",", encoding="euc-kr")
+#
+## 201809 인구데이터 뽑아오기 #
+#recent_data = all_data.iloc[-1, :]
+#index_list = []
+#for i in recent_data.index:
+#    index_list.append(i.split()[1])
+#
+#recent_data.index = index_list
+#all_center['old_add'][all_center['old_add']=='공릉1동'] = '공릉1.3동'
+#all_center['old_add'][all_center['old_add']=='위례동'] = '장지동'
+#
+#
+### center data에 2018년 9월 인구 데이터 붙이기 ##
+#all_center['201809'] = 0
+#for i in range(len(all_center['201809'])):
+#    try: all_center['201809'].iloc[i] = recent_data[all_center['old_add'].iloc[i]]
+#    except: print("error: ", all_center['old_add'].iloc[i])
 
 #all_center.to_csv("d:/project_data/all_center9.csv", encoding="euc-kr")
 
@@ -63,31 +64,31 @@ Y = tf.placeholder(dtype=tf.float32, shape=[None, 423])
 # 다중신경망 구성 #
 # drop-out # 학습 노드를 임의로 제외하여, 오버피팅 방지 --> 앙상블 학습 구현
 init = tf.keras.initializers.he_normal(seed=77)
-W1 = tf.Variable(init([1, 423]), name='weight1')
-b1 = tf.Variable(init([423]), name='bias1')
+W1 = tf.Variable(init([1, 2115]), name='weight1')
+b1 = tf.Variable(init([2115]), name='bias1')
 layer1 = tf.matmul(X, W1) + b1
 l1 = tf.contrib.layers.batch_norm(layer1, center=True, scale=True,
                                   is_training=is_training)
 L1 = tf.nn.relu(l1, name='relu1')
 L1 = tf.nn.dropout(L1, keep_prob=keep_prob)
 
-W2 = tf.Variable(init([423, 423]), name='weight2')
-b2 = tf.Variable(init([423]), name='bias2')
+W2 = tf.Variable(init([2115, 1269]), name='weight2')
+b2 = tf.Variable(init([1269]), name='bias2')
 layer2 = tf.matmul(L1, W2) + b2
 l2 = tf.contrib.layers.batch_norm(layer2, center=True, scale=True,
                                   is_training=is_training)
 L2 = tf.nn.relu(l2, name='relu2')
 L2 = tf.nn.dropout(L2, keep_prob=keep_prob)
 
-W3 = tf.Variable(init([423, 423]), name='weight3')
-b3 = tf.Variable(init([423]), name='bias3')
+W3 = tf.Variable(init([1269, 846]), name='weight3')
+b3 = tf.Variable(init([846]), name='bias3')
 layer3 = tf.matmul(L2, W3) + b3
 l3 = tf.contrib.layers.batch_norm(layer3,  center=True, scale=True,
                                   is_training=is_training)
 L3 = tf.nn.relu(l3, name='relu3')
 L3 = tf.nn.dropout(L3, keep_prob=keep_prob)
 
-W4 = tf.Variable(init([423, 423]), name='weight4')
+W4 = tf.Variable(init([846, 423]), name='weight4')
 b4 = tf.Variable(init([423]), name='bias4')
 hypothesis = tf.matmul(L3, W4) + b4
 
