@@ -53,7 +53,7 @@ l2norm = 0.0001
 epochs = 10000
 batch_size = 42
 is_training = True  # 배치 정규화를 위한 boollean
-keep_prob = 0.8
+keep_prob = 0.7
 
 ## tf building ## + ## tensor graph ##
 #tf.reset_default_graph()
@@ -63,13 +63,13 @@ Y = tf.placeholder(dtype=tf.float32, shape=[None, 423])
 ## batch-normalization ##  --> wx+B의 계산마다 정규화가 이루어져, 학습 개선
 # 다중신경망 구성 #
 # drop-out # 학습 노드를 임의로 제외하여, 오버피팅 방지 --> 앙상블 학습 구현
-init = tf.keras.initializers.he_normal(seed=77)
+init = tf.contrib.layers.xavier_initializer(seed=77)
 W1 = tf.Variable(init([1, 2115]), name='weight1')
 b1 = tf.Variable(init([2115]), name='bias1')
 layer1 = tf.matmul(X, W1) + b1
 l1 = tf.contrib.layers.batch_norm(layer1, center=True, scale=True,
                                   is_training=is_training)
-L1 = tf.nn.relu(l1, name='relu1')
+L1 = tf.nn.tanh(l1, name='relu1')
 L1 = tf.nn.dropout(L1, keep_prob=keep_prob)
 
 W2 = tf.Variable(init([2115, 1269]), name='weight2')
@@ -77,7 +77,7 @@ b2 = tf.Variable(init([1269]), name='bias2')
 layer2 = tf.matmul(L1, W2) + b2
 l2 = tf.contrib.layers.batch_norm(layer2, center=True, scale=True,
                                   is_training=is_training)
-L2 = tf.nn.relu(l2, name='relu2')
+L2 = tf.nn.tanh(l2, name='relu2')
 L2 = tf.nn.dropout(L2, keep_prob=keep_prob)
 
 W3 = tf.Variable(init([1269, 846]), name='weight3')
@@ -85,7 +85,7 @@ b3 = tf.Variable(init([846]), name='bias3')
 layer3 = tf.matmul(L2, W3) + b3
 l3 = tf.contrib.layers.batch_norm(layer3,  center=True, scale=True,
                                   is_training=is_training)
-L3 = tf.nn.relu(l3, name='relu3')
+L3 = tf.nn.tanh(l3, name='relu3')
 L3 = tf.nn.dropout(L3, keep_prob=keep_prob)
 
 W4 = tf.Variable(init([846, 423]), name='weight4')
