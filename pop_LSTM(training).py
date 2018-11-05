@@ -11,18 +11,18 @@ tf.set_random_seed(777)
 tf.reset_default_graph()
 
 ## parameter ##
-seq_length = 10 # 데이터의 시퀀스 length (연관된 데이터)  -> output row
+seq_length = 5 # 데이터의 시퀀스 length (연관된 데이터)  -> output row
 data_dim = 1 # 입력 차원 --> 인구수 1 (동별)
 output_dim = 1 # 출력 차원 --> 예측치 1
 #hidden_size = 20 # 셀 연산 후 나오는 output col
-learning_rate = 0.1
-iteration = 10000
+learning_rate = 0.07
+iteration = 8000
 m = 105 # --> None
 MSE_list = []
 predict_list = []
 
 ### 데이터 전처리 ###
-all_data = pd.read_csv("peopleDataAll01.csv", sep=",", encoding='cp949')
+all_data = pd.read_csv("d:/pop/peopleDataAll01.csv", sep=",", encoding='cp949')
 
 ## 청운효자동 LSTM ##
 for k in range(len(all_data.columns)):
@@ -60,8 +60,8 @@ for k in range(len(all_data.columns)):
         cell = tf.nn.rnn_cell.LSTMCell(num_units=hidden_size, activation=tf.tanh)
         return cell
     
-    cell1 = rnn.DropoutWrapper(lstm_cell(10), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
-    cell2 = rnn.DropoutWrapper(lstm_cell(1), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
+    cell1 = rnn.DropoutWrapper(lstm_cell(50), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
+    cell2 = rnn.DropoutWrapper(lstm_cell(40), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
 #    cell3 = rnn.DropoutWrapper(lstm_cell(1), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
 #    cell4 = rnn.DropoutWrapper(lstm_cell(), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
     #cell5 = rnn.DropoutWrapper(lstm_cell(), input_keep_prob=keep_prob, output_keep_prob=keep_prob, seed=77)
@@ -96,7 +96,7 @@ for k in range(len(all_data.columns)):
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     for i in range(iteration):
-        cost_val, _, out= sess.run([cost, train, output], feed_dict={X: x_train, y: y_train, keep_prob:1.0})
+        cost_val, _, out= sess.run([cost, train, output], feed_dict={X: x_train, y: y_train, keep_prob:0.7})
 #        if i % 100 == 0:
 #            print(cost_val)
     
@@ -127,7 +127,7 @@ plt.plot(y_test, 'r-')
 plt.plot(y_hat, 'b-')
 plt.show()
 
-
+mse = pd.DataFrame(MSE_list)
 
 
 
