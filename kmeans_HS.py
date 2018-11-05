@@ -6,9 +6,10 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
 
+np.random.seed(777)
 
 ## 어린이집 데이터 전처리 ##
-all_center = pd.read_csv("d:/project_data/KNN_data.csv", sep=",", encoding="euc-kr")
+all_center = pd.read_csv("d:/project_data/all_data_pp.csv", sep=",", encoding="euc-kr")
 x_test = all_center[all_center['Type'] == "국공립"] # 국공립만 선택
 X = x_test.iloc[:, 14:16]
 
@@ -95,12 +96,12 @@ def distance(a, b):
 def center_access():
     global k_means, center, K, groupby
 #    pop = groupby[['201809']] # (1412, 1)
-    groupby['center_access'] = 0.01
+    groupby['center_access_2'] = 0.01
     for j in range(len(groupby)):
         tmpList = []
         for i in range(len(center)):
             gb = groupby[groupby['k_cluster'] == i]
-            e = np.int(np.mean(gb['201809']))
+            e = np.int(np.mean(gb['202104']))
             dist = distance(groupby.iloc[j, 14:16].values, center[i])
             tmpList.append(e * (dist*1000) ** -1)
         groupby.iloc[j, -1] = np.sum(tmpList)
@@ -109,11 +110,11 @@ def center_access():
 def people_access():
     global k_means, center, K, groupby
     center = pd.DataFrame(center)
-    center['people_access'] = 0.01
+    center['people_access_2'] = 0.01
     for j in range(len(center)):
         tmpList = []
         for i in range(len(groupby)):
-            center_acc = groupby['center_access'].iloc[i]
+            center_acc = groupby['center_access_2'].iloc[i]
             limit = groupby['Max'].iloc[i]
             dist = distance(groupby.iloc[i, 14:16].values, center.iloc[j, :-1].values)
             tmpList.append((limit * (dist*1000) ** -1) / (center_acc))
@@ -123,9 +124,9 @@ def people_access():
 center_access()
 people_access()
 
-groupby['people_access'] = 0
+groupby['people_access_2'] = 0
 for i in range(len(groupby)):
-    groupby.iloc[i, -1] = center['people_access'][groupby['k_cluster'].iloc[i]]
+    groupby.iloc[i, -1] = center['people_access_2'][groupby['k_cluster'].iloc[i]]
     
     
-#groupby.to_csv("d:/project_data/KK_k150.csv", encoding="euc-kr")
+groupby.to_csv("d:/project_data/KK_k150_2021.csv", encoding="euc-kr", index=0)
