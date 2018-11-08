@@ -9,9 +9,11 @@ from scipy.spatial.distance import cdist, pdist
 np.random.seed(777)
 
 ## 어린이집 데이터 전처리 ##
-all_center = pd.read_csv("d:/project_data/all_data_pp.csv", sep=",", encoding="euc-kr")
+all_center = pd.read_csv("d:/project_data/test/all_test_1.csv", sep=",", encoding="euc-kr")
 x_test = all_center[all_center['Type'] == "국공립"] # 국공립만 선택
-X = x_test.iloc[:, 14:16]
+X = x_test.iloc[:-15, 15:17]
+X_test = x_test.iloc[:, 15:17]
+
 
 ## train_test split ## --> train: x_test / predict: x_test (cluster)
 
@@ -54,11 +56,11 @@ def k_search():
 # n_cluster = 424, max_iter=3000 #
 k_means = KMeans(n_clusters=K, max_iter=3000, random_state=77)
 k_means.fit(X)
-k_cluster = k_means.predict(X)
+k_cluster = k_means.predict(X_test)
 x_test['k_cluster'] = k_cluster
 
 ss = silhouette_score(X, k_means.labels_, metric='euclidean')
-print(ss) # 0.40
+#print(ss) # 0.40
 
 
 # 한글 폰트 깨지는 문제 #
@@ -67,18 +69,19 @@ font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get
 rc('font', family=font_name)
 
 # 시각화 그래프 # --> 구별 평균 추정값 (TEST) // 그냥 거리만 나타낸 시각화
-fig = plt.figure()
-for i in range(K):
-    scat = plt.scatter(x_test[x_test['k_cluster']==i].iloc[:, 14], x_test[x_test['k_cluster']==i].iloc[:, 15],
-                       s=10)
-    
-
-fig.show()
+#fig = plt.figure()
+#for i in range(K):
+#    scat = plt.scatter(x_test[x_test['k_cluster']==i].iloc[:, 14], x_test[x_test['k_cluster']==i].iloc[:, 15],
+#                       s=10)
+#    
+#
+#fig.show()
 
 ### 
 ### 센터 접근성 분석 ###
 ### k-means 클러스터를 이용해, 예측한 인구에 따른 '센터'의 접근성 분석 ###
 center = k_means.cluster_centers_ # 200개의 클러스터
+center = pd.DataFrame(center)
 groupby = x_test.sort_values(['k_cluster'])
 
 def distance(a, b):
@@ -93,40 +96,48 @@ def distance(a, b):
     d = R * c
     return d
 
-def center_access():
+def center_access(center_col, pop):
     global k_means, center, K, groupby
 #    pop = groupby[['201809']] # (1412, 1)
-    groupby['center_access_2'] = 0.01
+    groupby[center_col] = 0.01
+    xy = np.array(groupby.iloc[:, 15:17])
+    center_xy = np.array(center.iloc[:, 0:2])
+    tmp = np.zeros_like(groupby[center_col])
     for j in range(len(groupby)):
+        if j % 100 == 0: print("center continue..")
         tmpList = []
         for i in range(len(center)):
             gb = groupby[groupby['k_cluster'] == i]
-            e = np.int(np.mean(gb['202104']))
-            dist = distance(groupby.iloc[j, 14:16].values, center[i])
+            e = np.int(np.mean(gb[pop]))
+            dist = distance(xy[j], center_xy[i])
             tmpList.append(e * (dist*1000) ** -1)
-        groupby.iloc[j, -1] = np.sum(tmpList)
+        tmp[j] = np.sum(tmpList)
+        groupby[center_col] = tmp
 #    groupby['mean'] = groupby['center_access'] / K
 
-def people_access():
+def people_access(people_col, center_col):
     global k_means, center, K, groupby
-    center = pd.DataFrame(center)
-    center['people_access_2'] = 0.01
+    center[people_col] = 0.01
+    xy = np.array(groupby.iloc[:, 15:17])
+    center_xy = np.array(center.iloc[:, 0:2])
+    tmp = np.zeros_like(center[people_col])
     for j in range(len(center)):
+        if j % 100 == 0: print("people continue..")
         tmpList = []
         for i in range(len(groupby)):
-            center_acc = groupby['center_access_2'].iloc[i]
+            center_acc = groupby[center_col].iloc[i]
             limit = groupby['Max'].iloc[i]
-            dist = distance(groupby.iloc[i, 14:16].values, center.iloc[j, :-1].values)
+            dist = distance(xy[i], center_xy[j])
             tmpList.append((limit * (dist*1000) ** -1) / (center_acc))
-        center.iloc[j, -1] = np.sum(tmpList)
+        tmp[j] = np.sum(tmpList)
+    center[people_col] = tmp
+    for i in range(len(groupby)):
+        groupby[people_col].iloc[i] = center[people_col][groupby['k_cluster'].iloc[i]]       
         
-        
-center_access()
-people_access()
+center_access('center_access', '201809')
+people_access('people_access', 'center_access')
+center_access('center_access_2', '202104')
+people_access('people_access_2', 'center_access_2')
 
-groupby['people_access_2'] = 0
-for i in range(len(groupby)):
-    groupby.iloc[i, -1] = center['people_access_2'][groupby['k_cluster'].iloc[i]]
-    
-    
-groupby.to_csv("d:/project_data/KK_k150_2021.csv", encoding="euc-kr", index=0)
+groupby.to_csv("d:/project_data/test/test_1.csv", encoding="euc-kr", index=0)
+#

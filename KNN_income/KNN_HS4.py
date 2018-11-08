@@ -85,6 +85,12 @@ plt.rcParams['axes.grid'] = True
 plt.rcParams["figure.figsize"] = (16,4)
 plt.show()
 
+test1 =knn_fit.predict(np.array([[126.835069, 37.488801]])) # array([[-0.3405183]])
+test2 = knn_fit.predict(np.array([[126.820568, 37.481623]])) # array([[0.04430948]])
+test3 = knn_fit.predict(np.array([[127.173252, 37.566563]])) # array([[0.28846714]])
+test4 = knn_fit.predict(np.array([[127.178065, 37.567504]])) # array([[0.11665704]])
+knn_fit.predict(np.array([[127.051929,	37.678604]])) # array([[0.11665704]])
+
 
 #x_test.to_csv("d:/project_data/KNN_data.csv", encoding='euc-kr', index=False)
 

@@ -35,5 +35,5 @@ cos_sim = pd.concat((data_259, data_261, data_270, data_824, data_686), axis=1)
 cos_sim = cos_sim[cos_sim > 0.9]
 cos_sim = cos_sim.dropna(axis=0)
 
-cos_sim.to_csv("d:/project_data/cos_sim.csv", encoding="cp949")
+#cos_sim.to_csv("d:/project_data/cos_sim.csv", encoding="cp949")
 #
