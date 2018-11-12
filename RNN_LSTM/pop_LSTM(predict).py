@@ -96,7 +96,7 @@ for k in [-18]:
     # training#
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
-    train_writer = tf.summary.FileWriter("project_data/logdir/", graph=tf.get_default_graph())
+    train_writer = tf.summary.FileWriter("d:/project_data/logdir/", graph=tf.get_default_graph())
     for i in range(iteration):
         cost_val, _, out, step_summary= sess.run([cost, train, output, summary_op], feed_dict={X: x_train, y: y_train, keep_prob: 0.7})
 #        if i % 100 == 0:

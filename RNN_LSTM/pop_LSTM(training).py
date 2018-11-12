@@ -40,12 +40,10 @@ for k in range(1,10):
     test1 = mm1.fit_transform(test1)
     
     ## split ## --> 시계열(시간순)
-
     train_size = int(len(test1) * 0.8)
     train_set = test1[:train_size, :] # shape(512, 5)
     test_set = test1[train_size:, :] # test(220, 5)
-    
-    
+
     # RNN data building #
     def build(time_series, seq_length):
         x_data = []

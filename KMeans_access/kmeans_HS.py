@@ -53,7 +53,7 @@ def k_search():
 
 #ss = k_search() # k -- > 구별 25 / 100로 진행
 
-# n_cluster = 424, max_iter=3000 #
+# n_cluster = 150, max_iter=3000 #
 k_means = KMeans(n_clusters=K, max_iter=3000, random_state=77)
 k_means.fit(X)
 k_cluster = k_means.predict(X_test)
