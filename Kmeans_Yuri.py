@@ -32,7 +32,6 @@ def k_search():
     tss = sum(pdist(X)**2 / X.shape[0]) # X각각의 거리 제곱 / m --> 평균
     bss = tss - wcss
 
-    ## 엘보 곡선 ## ----> 시각화 하세요~!
     fig, axs = plt.subplots(2,1, constrained_layout=True)
     axs[0].plot(K, avgWithinSS, 'o-')
     axs[0].set_title('Average within-cluster sum of squares')
@@ -40,8 +39,7 @@ def k_search():
     axs[0].set_ylabel('avgWithinSS')
     fig.suptitle('Elbow Curve for finding K value', fontsize=16)
 
-
-    ## 분산 ## ----> 이것도 ~!
+    ## 분산 ## 
     axs[1].plot(K, bss/tss*100, '--')
     axs[1].set_title('Analysis of variance')
     axs[1].set_xlabel('Number of clusters')
