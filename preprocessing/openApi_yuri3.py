@@ -18,15 +18,13 @@ from urllib.parse import urlencode, quote_plus
 ########################################################################################################################
 
 
-### 아파트 url 생성 코드 작성 ###
+### url 생성 코드 작성 ###
 # URL request --> 받아오기 ## --> 하루 1000트래픽 한정(1 계정당)
 # 서비스키 중요 --> 공공데이터포털에서 오픈API로 받은 인증키를 여기에 입력
-url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcRHTrade?'
-serviceKey = 'serviceKey=' + "0d8fGluCLeDwmtW310ls9LnNRS582k2fwYEnmtr25HJ8Iv%2Bwcjd4D%2B6M4wQNwuCgLTrDHSawkREI6gD0uHlYGA%3D%3D" + "&"
+url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?'
+serviceKey = 'serviceKey=' + "9rL%2Fv5RbvEC4bLji%2B3hTKF1wuBPkoVk6nnKg54x54CON8OOz5cLFmRFdIWf38wJmwxilBt4XYpuqm0jzpCoM8w%3D%3D" + "&"
 LAWD_CD = 'LAWD_CD='
 DEAL_YMD = 'DEAL_YMD='
-
-### 연립다세대 url 생성 코드 작성 ###
 
 
 ### 지역코드 생성 ###
@@ -124,7 +122,7 @@ per_Pyeong = Price / Area
 '''
 
 ### DataFrame 생성하기 ###
-bilaDf = pd.DataFrame(np.arange())
+
 
 # In[ ]:
 
