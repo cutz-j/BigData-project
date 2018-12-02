@@ -11,19 +11,19 @@ rent = pd.read_csv("d:/project_data/KNN_data_rent.csv", encoding='euc-kr')
 all_data = pd.read_csv("d:/project_data/KK_k150_2021.csv", sep=",", encoding='cp949')
 
 # 전월세 데이터 추가 #
-rent_price = rent[['predK25']]
-all_data['rent'] = rent_price
+rent_name = rent[['predK25']]
+
+all_data['rent'] = 0
+for i in range(len(rent_name)):
+    all_data.iloc[all_data[all_data['Name'] == rent_name.iloc[i,0]].index[0], -1] = rent_name.iloc[i, 1]
 
 ## X data ##
 X = all_data[['predK25', 'rent', 'center_access', 'people_access', 'center_access_2', 'people_access_2']]
 y = all_data[['Name']]
 
 ## scaling ##
-ss = StandardScaler()
+ss = MinMaxScaler()
 X_scale = ss.fit_transform(X)
-
-mm = MinMaxScaler()
-X_scale = mm.fit_transform(X)
 
 ### SVD ###
 svd = TruncatedSVD(n_components=3)

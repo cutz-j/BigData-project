@@ -139,5 +139,5 @@ people_access('people_access', 'center_access')
 center_access('center_access_2', '202104')
 people_access('people_access_2', 'center_access_2')
 
-groupby.to_csv("d:/project_data/test/test_1.csv", encoding="euc-kr", index=0)
+#groupby.to_csv("d:/project_data/test/test_1.csv", encoding="euc-kr", index=0)
 #
