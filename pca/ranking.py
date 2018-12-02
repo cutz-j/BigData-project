@@ -48,4 +48,8 @@ y_old = scale_svd(X_old, y)
 X_new, y_new = data_concat(data_new, rent)
 y_new_svd = scale_svd(X_new, y_new)
 y_new_svd = y_new_svd.drop_duplicates()
+y_old_rank = sort_rank(y_old)
 y_new_rank = sort_rank(y_new_svd)
+
+y_new_rank.to_csv("d:/project_data/y_new.csv", encoding='euc-kr', index=None)
+y_old_rank.to_csv("d:/project_data/y_old.csv", encoding='euc-kr', index=None)
