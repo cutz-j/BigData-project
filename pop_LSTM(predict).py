@@ -24,7 +24,7 @@ MSE_list = []
 pop_2103 = []
 
 ### 데이터 전처리 ###
-all_data = pd.read_csv("c:/data/peopleDataAll01.csv", sep=",", encoding='cp949')
+all_data = pd.read_csv("d:/data/peopleDataAll01.csv", sep=",", encoding='cp949')
 
 ## LSTM ##
 for k in range(423):
