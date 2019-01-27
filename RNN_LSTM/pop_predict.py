@@ -103,7 +103,8 @@ update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # batch_norm
 with tf.control_dependencies(update_ops):
     train = optimizer.minimize(cost)
 
-sess = tf.Session()
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 sess.run(tf.global_variables_initializer())
 #sess.run(is_training, feed_dict={is_training: True})
 
